@@ -43,8 +43,8 @@
             <div class="form-group">
                 <label for="bio_metrics">Enable Biometric authentication</label>
                 <select name="bio_metrics" id="bio_metrics">
-                    <option value="0" {% if not app.user.enableBioMetricsFor2fa %}selected{% endif %}>No</option>
-                    <option value="1" {% if app.user.enableBioMetricsFor2fa %}selected{% endif %}>Yes</option>
+                    <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
+                    <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
                 </select>
                 <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
             </div>

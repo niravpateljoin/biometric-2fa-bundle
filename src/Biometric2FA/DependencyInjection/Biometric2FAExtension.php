@@ -39,4 +39,4 @@ class Biometric2FAExtension extends Extension implements PrependExtensionInterfa
     {
         return 'biometric_2fa';
     }
-}   
+}
