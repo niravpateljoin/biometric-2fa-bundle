@@ -19,10 +19,10 @@ abstract class UserDevice
     #[ORM\Column(type: 'text')]
     protected string $data;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: 'datetime')]
     protected \DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTimeInterface $lastUsedAt = null;
 
     public function getId(): ?int
