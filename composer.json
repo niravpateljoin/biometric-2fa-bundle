@@ -3,13 +3,6 @@
   "description": "Symfony bundle for biometric 2FA using WebAuthn",
   "type": "symfony-bundle",
   "license": "MIT",
-  "authors": [
-    {
-      "name": "Chaitya Panchal",
-      "email": "chaityapanchal@gmail.com",
-      "role": "Symfony Developer"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "Biometric2FA\\": "src/Biometric2FA"
