@@ -12,5 +12,5 @@ interface BiometricUserInterface
     /**
      * Sets whether biometric 2FA is enabled.
      */
-    public function setBiometric2FAEnabled(bool $enabled): static;
+    public function setBiometric2FAEnabled(bool $enabled): self;
 }
