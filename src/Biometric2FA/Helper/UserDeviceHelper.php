@@ -22,7 +22,6 @@ readonly class UserDeviceHelper
         private UserDeviceRepositoryInterface $userDeviceRepository,
         private string $rpName,
         private string $rpId,
-        private array $attestationFormats,
         private string $deviceEntityClass,
     ) {}
 
@@ -106,7 +105,7 @@ readonly class UserDeviceHelper
 
     private function getWebAuthn(): WebAuthn
     {
-        return new WebAuthn($this->rpName, $this->rpId, $this->attestationFormats);
+        return new WebAuthn($this->rpName, $this->rpId);
     }
 
     private function getSession(): SessionInterface

@@ -103,15 +103,6 @@
         }
 
 
-        function vibrateIfPossible()
-        {
-            const canVibrate = "vibrate" in navigator;
-
-            if (canVibrate) {
-                window.navigator.vibrate(100);
-            }
-        }
-
         document.getElementById('bio-metrics-auth-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);

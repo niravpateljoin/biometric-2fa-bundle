@@ -1,4 +1,3 @@
 biometric_2fa:
   rp_id: "yourdomain.com"
   rp_name: "My App Name"
-  attestation_formats: ["packed", "fido-u2f"]
