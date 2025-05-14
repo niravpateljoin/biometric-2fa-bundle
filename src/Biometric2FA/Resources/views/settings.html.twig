@@ -56,6 +56,7 @@
     <script>
         function recursiveBase64StrToArrayBuffer(obj)
         {
+            console.log('called')
             const prefix = "=?BINARY?B?";
             const suffix = "?=";
 
@@ -97,6 +98,7 @@
          */
         function arrayBufferToBase64(buffer)
         {
+            console.log('called')
             return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
         }
 
@@ -109,7 +111,7 @@
                 window.navigator.vibrate(100);
             }
         }
-        
+
         document.getElementById('bio-metrics-auth-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
