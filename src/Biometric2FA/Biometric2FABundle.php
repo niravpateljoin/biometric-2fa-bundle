@@ -5,6 +5,7 @@ namespace Biometric2FA;
 use Biometric2FA\DependencyInjection\Biometric2FAExtension;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Biometric2FA\DependencyInjection\Compiler\DoctrineTypeCompilerPass;
 
 class Biometric2FABundle extends Bundle
 {
