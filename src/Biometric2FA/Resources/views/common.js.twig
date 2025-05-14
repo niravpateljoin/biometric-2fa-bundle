@@ -43,3 +43,13 @@ function arrayBufferToBase64(buffer)
 {
     return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
 }
+
+
+function vibrateIfPossible()
+{
+    const canVibrate = "vibrate" in navigator;
+
+    if (canVibrate) {
+        window.navigator.vibrate(100);
+    }
+}
