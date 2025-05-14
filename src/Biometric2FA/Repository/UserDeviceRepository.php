@@ -2,13 +2,12 @@
 
 namespace Biometric2FA\Repository;
 
-use Biometric2FA\Security\BiometricUserInterface;
-use Doctrine\ORM\EntityRepository;
+use Symfony\Component\Security\Core\User\UserInterface;
 
-abstract class UserDeviceRepository extends EntityRepository
+interface UserDeviceRepositoryInterface
 {
     /**
-     * Return an array of credential IDs (e.g., ['abc123', 'xyz789']) for the given user
+     * @return string[] list of credential IDs (hex)
      */
-    abstract public function getCredentialsForUser(BiometricUserInterface $user): array;
+    public function getCredentialsForUser(UserInterface $user): array;
 }

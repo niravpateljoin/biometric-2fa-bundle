@@ -3,7 +3,7 @@
 namespace Biometric2FA\Helper;
 
 use Biometric2FA\Entity\UserDevice;
-use Biometric2FA\Repository\UserDeviceRepository;
+use Biometric2FA\Repository\UserDeviceRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use lbuchs\WebAuthn\WebAuthn;
@@ -19,7 +19,7 @@ readonly class UserDeviceHelper
     public function __construct(
         private RequestStack $requestStack,
         private EntityManagerInterface $entityManager,
-        private UserDeviceRepository $userDeviceRepository,
+        private UserDeviceRepositoryInterface $userDeviceRepository,
         private string $rpName,
         private string $rpId,
         private array $attestationFormats,
