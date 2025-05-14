@@ -16,7 +16,7 @@ abstract class UserDevice
     #[ORM\Column(type: 'string', length: 255)]
     protected string $credentialId;
 
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: 'blob_string')]
     protected string $data;
 
     #[ORM\Column(type: 'datetime')]

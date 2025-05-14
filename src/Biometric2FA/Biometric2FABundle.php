@@ -12,4 +12,11 @@ class Biometric2FABundle extends Bundle
     {
         return new Biometric2FAExtension();
     }
+
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new DoctrineTypeCompilerPass());
+    }
 }
