@@ -4,7 +4,6 @@ namespace Biometric2FA\Controller;
 
 use Biometric2FA\Entity\UserDevice;
 use Biometric2FA\Helper\UserDeviceHelper;
-use Biometric2FA\Repository\UserDeviceRepository;
 use Biometric2FA\Repository\UserDeviceRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
