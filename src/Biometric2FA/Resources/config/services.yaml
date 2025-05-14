@@ -1,6 +1,9 @@
 services:
   Biometric2FA\Helper\UserDeviceHelper:
-    arguments:
+    autowire: true
+    autoconfigure: true
+    public: true
+    bind:
       $rpName: '%biometric_2fa.rp_name%'
       $rpId: '%biometric_2fa.rp_id%'
       $attestationFormats: '%biometric_2fa.attestation_formats%'
