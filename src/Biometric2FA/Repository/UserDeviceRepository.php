@@ -2,12 +2,12 @@
 
 namespace Biometric2FA\Repository;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+use Biometric2FA\Security\BiometricUserInterface;
 
 interface UserDeviceRepositoryInterface
 {
     /**
      * @return string[] list of credential IDs (hex)
      */
-    public function getCredentialsForUser(UserInterface $user): array;
+    public function getCredentialsForUser(BiometricUserInterface $user): array;
 }
