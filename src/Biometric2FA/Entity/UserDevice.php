@@ -20,10 +20,10 @@ abstract class UserDevice
     protected string $data;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    protected \DateTimeImmutable $createdAt;
+    protected \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    protected ?\DateTimeImmutable $lastUsedAt = null;
+    protected ?\DateTimeInterface $lastUsedAt = null;
 
     public function getId(): ?int
     {
@@ -52,23 +52,23 @@ abstract class UserDevice
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-    public function getLastUsedAt(): ?\DateTimeImmutable
+    public function getLastUsedAt(): ?\DateTimeInterface
     {
         return $this->lastUsedAt;
     }
 
-    public function setLastUsedAt(?\DateTimeImmutable $lastUsedAt): static
+    public function setLastUsedAt(?\DateTimeInterface $lastUsedAt): static
     {
         $this->lastUsedAt = $lastUsedAt;
         return $this;

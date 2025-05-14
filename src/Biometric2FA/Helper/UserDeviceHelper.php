@@ -4,6 +4,7 @@ namespace Biometric2FA\Helper;
 
 use Biometric2FA\Entity\UserDevice;
 use Biometric2FA\Repository\UserDeviceRepositoryInterface;
+use Biometric2FA\Security\BiometricUserInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use lbuchs\WebAuthn\WebAuthn;
@@ -11,7 +12,6 @@ use RuntimeException;
 use stdClass;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Throwable;
 
 readonly class UserDeviceHelper
@@ -37,7 +37,7 @@ readonly class UserDeviceHelper
         return $args;
     }
 
-    public function processCreateRequest(string $clientDataJSON, string $attestationObject, UserInterface $user): void
+    public function processCreateRequest(string $clientDataJSON, string $attestationObject, BiometricUserInterface $user): void
     {
         try {
             $webAuthn = $this->getWebAuthn();
@@ -57,8 +57,7 @@ readonly class UserDeviceHelper
             }
 
             $device->setUser($user);
-            $device->setCreatedAt(new \DateTimeImmutable());
-            $device->setLastUsedAt(new \DateTimeImmutable());
+            $device->setCreatedAt(new \DateTime());
             $device->setCredentialId(bin2hex($data->credentialId));
             $device->setData(serialize($data));
 
@@ -69,7 +68,7 @@ readonly class UserDeviceHelper
         }
     }
 
-    public function getArgsForUser(UserInterface $user): stdClass
+    public function getArgsForUser(BiometricUserInterface $user): stdClass
     {
         $credentials = $this->userDeviceRepository->getCredentialsForUser($user);
         if (empty($credentials)) {
