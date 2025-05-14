@@ -164,4 +164,10 @@ class BiometricController extends AbstractController
             'errorMessage' => $errorMessage
         ]);
     }
+
+    #[Route('/bio-metrics-auth', name: 'app_biometric_auth')]
+    public function biometricsAuth(): Response
+    {
+        return $this->render('@Biometric2FABundle/biometrics_auth.html.twig');
+    }
 }
