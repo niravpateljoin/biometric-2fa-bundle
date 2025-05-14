@@ -1,0 +1,13 @@
+services:
+  Biometric2FA\Helper\UserDeviceHelper:
+    arguments:
+      $rpName: '%biometric_2fa.rp_name%'
+      $rpId: '%biometric_2fa.rp_id%'
+      $attestationFormats: '%biometric_2fa.attestation_formats%'
+      $deviceEntityClass: '%biometric_2fa.device_entity%'
+
+  Biometric2FA\Controller\:
+    resource: '../../Controller/'
+    autowire: true
+    autoconfigure: true
+    public: true

@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% block title %}Biometric Settings{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .card {
+            padding: 20px;
+            border: 1px solid #ccc;
+            max-width: 600px;
+            margin: 40px auto;
+            border-radius: 10px;
+        }
+        .card h4 {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        select, button {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+        .message {
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="card">
+        <h4>Biometric Authentication</h4>
+        <form id="bio-metrics-auth-form">
+            <div class="form-group">
+                <label for="bio_metrics">Enable Biometric authentication</label>
+                <select name="bio_metrics" id="bio_metrics">
+                    <option value="0" {% if not app.user.enableBioMetricsFor2fa %}selected{% endif %}>No</option>
+                    <option value="1" {% if app.user.enableBioMetricsFor2fa %}selected{% endif %}>Yes</option>
+                </select>
+                <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
+            </div>
+            <button type="submit">Save</button>
+            <div id="statusMessage" class="message" style="display:none;"></div>
+        </form>
+    </div>
+
+    <script src="{{ asset('js/biometrics.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('bio-metrics-auth-form');
+            const msg = document.getElementById('statusMessage');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                if (formData.get('bio_metrics') === '1') {
+                    if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {
+                        alert('Your browser does not support WebAuthn.');
+                        return;
+                    }
+
+                    try {
+                        const createArgsRes = await fetch('{{ path('bio_metrics_create_args') }}', {
+                            method: 'POST'
+                        });
+                        const createArgsData = await createArgsRes.json();
+
+                        if (!createArgsData.success) throw new Error(createArgsData.error);
+                        const args = await recursiveBase64StrToArrayBuffer(createArgsData.createdArgs);
+                        const cred = await navigator.credentials.create(args);
+                        const registrationData = JSON.stringify({
+                            clientDataJSON: arrayBufferToBase64(cred.response.clientDataJSON),
+                            attestationObject: arrayBufferToBase64(cred.response.attestationObject)
+                        });
+
+                        await fetch('{{ path('bio_metrics_process_create') }}', {
+                            method: 'POST',
+                            body: registrationData
+                        });
+                    } catch (err) {
+                        showMessage('error', err.message);
+                        return;
+                    }
+                }
+
+                const updateRes = await fetch('{{ path('settings_manage_bio_metrics') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const updateData = await updateRes.json();
+
+                if (updateData.status) {
+                    showMessage('success', 'Biometric setting updated.');
+                } else {
+                    showMessage('error', updateData.error || 'Update failed.');
+                }
+            });
+
+            function showMessage(type, text) {
+                msg.className = 'message ' + type;
+                msg.textContent = text;
+                msg.style.display = 'block';
+            }
+        });
+    </script>
+{% endblock %}

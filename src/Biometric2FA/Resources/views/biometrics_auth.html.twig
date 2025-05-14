@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+{% block title %}Biometric Login{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow text-center">
+                    <div class="card-body">
+                        <h4>Biometric Authentication</h4>
+                        <button id="fingerprint-auth" class="btn btn-outline-primary rounded-circle p-3" style="font-size: 2rem;">
+                            <i class="fas fa-fingerprint"></i>
+                        </button>
+                        <p class="mt-3 text-muted">Click to authenticate</p>
+                        <a href="{{ path('app_logout') }}" class="btn btn-link mt-3 text-danger">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ asset('bundles/biometric2fabundle/js/biometric.js') }}"></script>
+{% endblock %}
