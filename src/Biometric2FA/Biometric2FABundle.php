@@ -6,6 +6,7 @@ use Biometric2FA\DependencyInjection\Biometric2FAExtension;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Biometric2FA\DependencyInjection\Compiler\DoctrineTypeCompilerPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class Biometric2FABundle extends Bundle
 {
