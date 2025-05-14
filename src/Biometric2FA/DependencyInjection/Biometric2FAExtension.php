@@ -9,6 +9,15 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class Biometric2FAExtension extends Extension
 {
+    public function prepend(ContainerBuilder $container): void
+    {
+        $container->prependExtensionConfig('twig', [
+            'paths' => [
+                __DIR__ . '/../Resources/views' => 'Biometric2FABundle',
+            ],
+        ]);
+    }
+    
     public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
