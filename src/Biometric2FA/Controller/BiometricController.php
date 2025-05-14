@@ -5,6 +5,7 @@ namespace Biometric2FA\Controller;
 use Biometric2FA\Entity\UserDevice;
 use Biometric2FA\Helper\UserDeviceHelper;
 use Biometric2FA\Repository\UserDeviceRepository;
+use Biometric2FA\Repository\UserDeviceRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,7 @@ class BiometricController extends AbstractController
 {
     public function __construct(
         private readonly UserDeviceHelper $helper,
-        private readonly UserDeviceRepository $repository,
+        private readonly UserDeviceRepositoryInterface $repository,
     ) {}
 
     #[Route('/settings', name: 'bio_metrics_settings', methods: ['GET'])]
