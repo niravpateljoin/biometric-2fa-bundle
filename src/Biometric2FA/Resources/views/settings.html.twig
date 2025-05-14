@@ -53,64 +53,131 @@
         </form>
     </div>
 
-    {{ include('@Biometric2FABundle/common.js.twig') }}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('bio-metrics-auth-form');
+        document.getElementById('bio-metrics-auth-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
             const msg = document.getElementById('statusMessage');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-
-                if (formData.get('bio_metrics') === '1') {
-                    if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {
-                        alert('Your browser does not support WebAuthn.');
-                        return;
-                    }
-
-                    try {
-                        const createArgsRes = await fetch('{{ path('bio_metrics_create_args') }}', {
-                            method: 'POST'
-                        });
-                        const createArgsData = await createArgsRes.json();
-
-                        if (!createArgsData.success) throw new Error(createArgsData.error);
-                        const args = await recursiveBase64StrToArrayBuffer(createArgsData.createdArgs);
-                        const cred = await navigator.credentials.create(args);
-                        const registrationData = JSON.stringify({
-                            clientDataJSON: arrayBufferToBase64(cred.response.clientDataJSON),
-                            attestationObject: arrayBufferToBase64(cred.response.attestationObject)
-                        });
-
-                        await fetch('{{ path('bio_metrics_process_create') }}', {
-                            method: 'POST',
-                            body: registrationData
-                        });
-                    } catch (err) {
-                        showMessage('error', err.message);
-                        return;
-                    }
+            if (formData.get('bio_metrics') === '1') {
+                if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {
+                    window.alert('Browser not supported.');
+                    return;
                 }
-
-                const updateRes = await fetch('{{ path('settings_manage_bio_metrics') }}', {
+                let biometricsDataCreateArgsURL = "{{ path('bio_metrics_create_args') }}";
+                fetch(biometricsDataCreateArgsURL, {
                     method: 'POST',
-                    body: formData
-                });
-                const updateData = await updateRes.json();
-
-                if (updateData.status) {
-                    showMessage('success', 'Biometric setting updated.');
-                } else {
-                    showMessage('error', updateData.error || 'Update failed.');
-                }
-            });
-
-            function showMessage(type, text) {
-                msg.className = 'message ' + type;
-                msg.textContent = text;
-                msg.style.display = 'block';
+                    cache: 'no-cache'
+                }).then((response) => {
+                    return response.json();
+                }).then((res) => {
+                    if (!res.success) {
+                        throw new Error(res);
+                    }
+                    let createdArgs = res.createdArgs;
+                    return recursiveBase64StrToArrayBuffer(createdArgs);
+                }).then((createCredentialArgs) => {
+                    return navigator.credentials.create(createCredentialArgs);
+                }).then((cred) => {
+                    return {
+                        clientDataJSON: cred.response.clientDataJSON  ? arrayBufferToBase64(cred.response.clientDataJSON) : null,
+                        attestationObject: cred.response.attestationObject ? arrayBufferToBase64(cred.response.attestationObject) : null
+                    };
+                }).then(JSON.stringify).then(function(AuthenticatorAttestationResponse) {
+                    let biometricsDataProcessCreateURL = "{{ path('bio_metrics_process_create') }}";
+                    fetch(biometricsDataProcessCreateURL, {
+                        method: 'POST',
+                        body: AuthenticatorAttestationResponse,
+                        cache: 'no-cache'
+                    }).then((res) => {
+                        return res.json();
+                    }).then((response) => {
+                        if (response.success) {
+                            manageBioMetrics(formData);
+                        }
+                    });
+                })
+            } else {
+                manageBioMetrics(formData);
             }
         });
+
+        function manageBioMetrics(formData)
+        {
+            fetch('{{ path('settings_manage_bio_metrics') }}', {
+                method: 'POST',
+                body: formData
+            }).then((res) => {
+                return res.json();
+            }).then(response => {
+                if (response.status) {
+                    showMessage('sucess', 'Updated Authentication Settings')
+                } else {
+                    showMessage('danger', response.errorMessage)
+                }
+            });
+        }
+
+
+        function showMessage(type, text) {
+            msg.className = 'message ' + type;
+            msg.textContent = text;
+            msg.style.display = 'block';
+        }
+
+        function recursiveBase64StrToArrayBuffer(obj)
+        {
+            const prefix = "=?BINARY?B?";
+            const suffix = "?=";
+
+            if (typeof obj === "string" && obj.startsWith(prefix) && obj.endsWith(suffix)) {
+                // Extract Base64 string
+                let base64Str = obj.slice(prefix.length, -suffix.length);
+
+                // Decode Base64 into binary string
+                let binaryString = atob(base64Str);
+
+                // Convert binary string into ArrayBuffer
+                let bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                return bytes.buffer; // Return as ArrayBuffer
+            }
+
+            if (Array.isArray(obj)) {
+                return obj.map(item => recursiveBase64StrToArrayBuffer(item)); // Process arrays recursively
+            }
+
+            if (obj !== null && typeof obj === "object") {
+                let newObj = {}; // Create a new object to avoid mutation issues
+                Object.entries(obj).forEach(([key, value]) => {
+                    newObj[key] = recursiveBase64StrToArrayBuffer(value);
+                });
+                return newObj;
+            }
+
+            return obj;
+        }
+
+
+        /**
+         * Convert a ArrayBuffer to Base64
+         * @param {ArrayBuffer} buffer
+         * @returns {String}
+         */
+        function arrayBufferToBase64(buffer)
+        {
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+        }
+
+
+        function vibrateIfPossible()
+        {
+            const canVibrate = "vibrate" in navigator;
+
+            if (canVibrate) {
+                window.navigator.vibrate(100);
+            }
+        }
     </script>
 {% endblock %}

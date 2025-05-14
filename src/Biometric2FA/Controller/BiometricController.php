@@ -50,23 +50,32 @@ class BiometricController extends AbstractController
     #[Route('/process-create', name: 'bio_metrics_process_create', methods: ['POST'])]
     public function processCreate(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $user = $this->getUser();
+        $success = false;
+        $errorMessage = null;
 
-        if (!isset($data['clientDataJSON'], $data['attestationObject'])) {
-            return $this->json(['success' => false, 'error' => 'Invalid request data'], 400);
-        }
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
 
         try {
-            $this->helper->processCreateRequest(
-                base64_decode($data['clientDataJSON']),
-                base64_decode($data['attestationObject']),
-                $user
-            );
-            return $this->json(['success' => true]);
-        } catch (\Throwable $e) {
-            return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
+            $bodyData = json_decode($request->getContent(), true);
+
+            if (!isset($bodyData['clientDataJSON'], $bodyData['attestationObject'])) {
+                throw new InvalidArgumentException("Missing WebAuthn credential data.");
+            }
+
+            $clientDataJSON = base64_decode($bodyData['clientDataJSON']);
+            $attestationObject = base64_decode($bodyData['attestationObject']);
+
+            $this->helper->processCreateRequest($clientDataJSON, $attestationObject, $currentUser);
+            $success = true;
+        } catch (Throwable $e) {
+            $errorMessage = $e->getMessage();
         }
+
+        return $this->json([
+            'success' => $success,
+            'error' => $errorMessage,
+        ]);
     }
 
     #[Route('/get-args', name: 'bio_metrics_get_args', methods: ['POST'])]
@@ -141,7 +150,7 @@ class BiometricController extends AbstractController
             try {
                 /** @var User $user */
                 $user = $this->getUser();
-                $user->setEnableBioMetricsFor2fa($enabled);
+                $user->setBiometric2FAEnabled($enabled);
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 $status = true;
