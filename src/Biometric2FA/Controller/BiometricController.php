@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Biometric2FA\Controller;
 
 use Biometric2FA\Entity\UserDevice;

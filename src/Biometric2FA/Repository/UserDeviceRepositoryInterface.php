@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Biometric2FA\Repository;
 
 use Biometric2FA\Security\BiometricUserInterface;

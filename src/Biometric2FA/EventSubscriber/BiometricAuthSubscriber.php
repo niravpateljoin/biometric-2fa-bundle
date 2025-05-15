@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Biometric2FA\EventSubscriber;
 
 use Biometric2FA\Controller\BiometricController;

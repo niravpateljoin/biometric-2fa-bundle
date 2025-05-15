@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Biometric2FA\DependencyInjection\Compiler;
 
 use Biometric2FA\Doctrine\DBAL\Types\BlobStringType;
