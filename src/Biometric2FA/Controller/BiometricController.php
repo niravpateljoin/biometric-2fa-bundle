@@ -130,9 +130,9 @@ class BiometricController extends AbstractController
 
             $request->getSession()->set('biometric_verification', true);
 
-            return $this->json(['success' => true]);
+            return $this->json(['status' => 'ok']);
         } catch (\Throwable $e) {
-            return $this->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return $this->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
 
