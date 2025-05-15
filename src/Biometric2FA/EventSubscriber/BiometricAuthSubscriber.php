@@ -53,7 +53,7 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
         $biometricVerification = $session->get('biometric_verification');
 
         $allowedRoutes = [
-            'app_biometrics_auth',
+            'app_biometric_auth',
             'app_biometrics_check_biometric_registration',
             'bio_metrics_get_args',
             'bio_metrics_create_args',
@@ -64,7 +64,7 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
         if ($currentUser->isBiometric2FAEnabled()
             && !$biometricVerification
             && !in_array($request->attributes->get('_route'), $allowedRoutes, true)) {
-            $response = $this->redirectController->redirect($request, 'app_biometrics_auth');
+            $response = $this->redirectController->redirectAction($request, 'app_biometric_auth');
             $event->setController(fn() => $response);
         }
     }
