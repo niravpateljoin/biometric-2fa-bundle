@@ -128,7 +128,7 @@ class BiometricController extends AbstractController
                 $device
             );
 
-            $request->getSession()->set('biometric_check_pending', false);
+            $request->getSession()->set('biometric_verification', true);
 
             return $this->json(['success' => true]);
         } catch (\Throwable $e) {

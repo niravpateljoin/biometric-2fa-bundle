@@ -11,7 +11,8 @@
   "require": {
     "php": "^8.3",
     "symfony/framework-bundle": "^6.3 || ^7.0",
-    "lbuchs/webauthn": "^2.1"
+    "lbuchs/webauthn": "^2.1",
+    "doctrine/dbal": "^4.2"
   },
   "extra": {
     "branch-alias": {
