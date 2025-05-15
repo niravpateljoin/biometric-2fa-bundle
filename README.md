@@ -1,32 +1,22 @@
-# 🔐 Biometric2FABundle
+# niravpatel/bio-metric-2fa-bundle
 
-A Symfony bundle to enable secure biometric-based 2FA using WebAuthn (FIDO2).  
-Supports fingerprint, Face ID, and other platform authenticators across modern browsers.
+> Symfony bundle for biometric 2FA using WebAuthn
 
----
-
-## 🚀 Features
-
-- WebAuthn-based 2FA (FIDO2)
-- Register multiple biometric devices per user
-- Seamless post-login verification
-- Easily toggle biometric 2FA per user
-- Works with Symfony 6.3+ and 7.x
+`niravpatel/bio-metric-2fa-bundle` is a Symfony bundle that enables biometric two-factor authentication (2FA) using WebAuthn with support for customizable user device storage, redirect paths, and logout integration.
 
 ---
 
-## 📦 Installation
+## 🚀 Installation
 
 ```bash
-composer require vivan/biometric-2fa-bundle
+composer require niravpatel/bio-metric-2fa-bundle
 ```
 
-Then enable the bundle (if using Symfony without Flex):
+Then enable the bundle in `config/bundles.php` (if not auto-loaded):
 
 ```php
-// config/bundles.php
 return [
-    Biometric2FABundle\Biometric2FABundle::class => ['all' => true],
+    Biometric2FA\Biometric2FABundle\Biometric2FABundle::class => ['all' => true],
 ];
 ```
 
@@ -34,90 +24,153 @@ return [
 
 ## ⚙️ Configuration
 
-Add this config file to your app:
+Create a config file:
 
 ```yaml
 # config/packages/biometric_2fa.yaml
 biometric_2fa:
-  rp_id: "yourdomain.com"
-  rp_name: "Your App Name"
-  attestation_formats: ["packed", "fido-u2f"]
+  rp_id: "localhost"
+  rp_name: "Test App"
+  device_entity: 'App\Entity\UserDevice'
+  redirect_path: 'app_dashboard'
+  logout_path: 'app_logout'
 ```
-
----
-
-## 🗺️ Routes
-
-Import all routes provided by the bundle:
-
+add this in doctrine.yaml
 ```yaml
-# config/routes.yaml
-biometric_2fa:
-  resource: '@Biometric2FABundle/Resources/config/routes.yaml'
+types:
+    blob_string: Biometric2FA\Doctrine\DBAL\Types\BlobStringType
 ```
 
----
+load bundle routes, (config/routes.yaml)
+```yaml
+biometric_2fa:
+    resource: '@Biometric2FABundle/Resources/config/routes.yaml'
+```
+add this in service.yaml, This line tells Symfony that whenever a service (like a controller or helper) needs the UserDeviceRepositoryInterface, it should use your actual UserDeviceRepository class.
 
-## 🧩 Setup in User Entity
+Without it, Symfony cannot auto-wire the interface because interfaces can’t be instantiated, and you haven’t told Symfony which class to use.
+```yaml
+Biometric2FA\Repository\UserDeviceRepositoryInterface: '@App\Repository\UserDeviceRepository'
+```
 
-Your `User` class must implement the provided interface and use the trait:
+## 🧩 Database Setup
 
+Your app must implement a concrete `UserDevice` entity that extends the bundle's abstract class,
+and map User entity with it, so we can store user devices.
 ```php
-use Biometric2FABundle\Security\BiometricUserInterface;
-use Biometric2FABundle\Security\BiometricUserTrait;
+use Biometric2FA\Entity\UserDevice as BaseDevice;
 
-class User implements BiometricUserInterface
+class UserDevice extends BaseDevice
 {
-    use BiometricUserTrait;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private BiometricUserInterface $user;
+
+    public function getUser(): BiometricUserInterface
+    {
+        return $this->user;
+    }
+
+    public function setUser(BiometricUserInterface $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }
 ```
 
-Then run a migration to add the `biometric2FAEnabled` field.
+And a repository class that implements:
+
+```php
+use Biometric2FA\Repository\UserDeviceRepositoryInterface;
+
+class UserDeviceRepository extends ServiceEntityRepository implements UserDeviceRepositoryInterface
+{
+    public function getCredentialsForUser(UserInterface $user): array
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.credentialId')
+            ->where('d.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+}
+```
 
 ---
 
-## 💻 WebAuthn UI
+## 🧠 User Interface Requirements
 
-### Register Device
+Your User entity should implement:
 
-Use the `/biometric/register` route to let users register a new fingerprint device.
+```php
+use Biometric2FA\Security\BiometricUserInterface;
 
-### Authenticate
+class User implements BiometricUserInterface
+{
+    private bool $enableBioMetricsFor2fa = false;
 
-Once registered, users are redirected to `/biometric/auth` for biometric login after entering credentials.
+    public function isBiometric2FAEnabled(): bool
+    {
+        return $this->enableBioMetricsFor2fa;
+    }
 
----
-
-## 📁 Files Included
-
-- `Entity/UserDevice` – stores WebAuthn credentials
-- `Helper/UserDeviceHelper` – handles registration and verification logic
-- `BiometricController` – provides REST endpoints
-- `BiometricAuthSubscriber` – enforces post-login biometric check
-- Views and JS for:
-    - `biometrics_auth.html.twig`
-    - `register_device.html.twig`
-    - `settings.html.twig`
-
----
-
-## 🔐 Security Flow
-
-1. User logs in (normal password)
-2. If biometric 2FA is enabled:
-    - Redirects to `/biometric/auth`
-    - Verifies using browser credentials
-    - Access granted after success
+    public function setBiometric2FAEnabled(bool $enabled): void
+    {
+        $this->enableBioMetricsFor2fa = $enabled;
+    }
+}
+```
 
 ---
 
-## 📚 Resources
+## 🛡️ Routes
 
-- WebAuthn PHP Library: [lbuchs/webauthn](https://github.com/lbuchs/WebAuthn)
-- WebAuthn Guide: [https://webauthn.guide](https://webauthn.guide)
+The bundle exposes the following biometric routes (protected):
+
+| Route Name                   | Path                        | Purpose                          |
+|-----------------------------|-----------------------------|----------------------------------|
+| `app_biometric_auth`        | `/biometric/auth`           | Biometric login UI               |
+| `bio_metrics_get_args`      | `/biometric/get-args`       | Generate WebAuthn challenge args |
+| `bio_metrics_create_args`   | `/biometric/create-args`    | Setup credentials challenge args |
+| `bio_metrics_process_create`| `/biometric/process-create` | Save credential                  |
+| `bio_metrics_verify`        | `/biometric/verify`         | Verify login assertion           |
+| `bio_metrics_bio_metrics_settings`        | `/biometric/settings`       | For enable/disable biometric     |
+---
+
+## ✨ Usage in Twig
+
+**Biometric Settings UI:**
+
+```twig
+<a href="{{ path(logout_path) }}">Logout</a>
+```
 
 ---
 
-## 📃 License
+## 📦 Features
 
-MIT © Vivan – Free to use and modify.
+- WebAuthn support for biometric authentication
+- Device registration and secure verification
+- Customizable redirect/logout path via config
+- Event subscriber to enforce biometric check post-login
+
+---
+
+## 🧪 Testing
+
+Ensure you call:
+
+```bash
+php bin/console doctrine:schema:update --force
+```
+
+Register your fingerprint and enable biometric login from the settings page.
+
+---
+
+## 📄 License
+
+This bundle is released under the MIT License.
