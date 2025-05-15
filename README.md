@@ -186,3 +186,53 @@ It appears automatically when biometric 2FA is required after login.
 ![Settings](docs/settings-page.png)
 This page allows users to enable or disable biometric authentication for their account.
 Changes are saved securely and reflected immediately in the login flow.
+
+---
+
+## ✨ Template Override Guide
+
+You can fully override the default templates provided by the bundle while keeping the JavaScript functionality working.
+
+### ✅ Required Steps
+
+1. **Include the JS files** in your custom layout:
+```twig
+<script src="{{ path('common_biometrics_js') }}"></script>
+<script src="{{ path('register_biometrics_js') }}"></script>
+<script src="{{ path('verify_biometrics_js') }}"></script>
+```
+
+2. **Use the following `data-*` attributes** in your HTML to ensure JavaScript works correctly:
+
+| Purpose                     | Required Attribute             |
+|----------------------------|--------------------------------|
+| Biometric Auth Button      | `data-biometric-auth`          |
+| Settings Form              | `data-biometric-settings-form` |
+
+### ✅ Example Override for Authentication Page
+
+```twig
+{% extends '@Biometric2FA/layout.html.twig' %}
+
+{% block biometric_auth_content %}
+    <button data-biometric-auth class="btn">Authenticate</button>
+{% endblock %}
+```
+
+### ✅ Example Override for Settings Page
+
+```twig
+{% extends '@Biometric2FA/layout.html.twig' %}
+
+{% block biometric_auth_content %}
+    <form data-biometric-settings-form>
+        ...
+    </form>
+{% endblock %}
+```
+
+### ✅ Flash Message Rendering (included in layout)
+
+The layout automatically renders flash messages on page reload using Symfony's `FlashBag`.
+
+---
