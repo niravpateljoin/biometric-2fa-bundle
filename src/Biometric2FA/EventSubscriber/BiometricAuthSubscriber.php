@@ -2,8 +2,11 @@
 
 namespace Biometric2FA\EventSubscriber;
 
+use Biometric2FA\Controller\BiometricController;
+use Biometric2FA\Controller\JavascriptController;
 use Biometric2FA\Security\BiometricUserInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Controller\ErrorController;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -48,27 +51,30 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var BiometricUserInterface $user */
+        $controller = $event->getController();
+        if (is_array($controller)) {
+            $controller = $controller[0];
+        }
+
         $session = $request->getSession();
         $biometricVerification = $session->get('biometric_verification');
 
-        $allowedRoutes = [
-            'app_biometric_auth',
-            'app_biometrics_check_biometric_registration',
-            'bio_metrics_get_args',
-            'bio_metrics_create_args',
-            'bio_metrics_process_create',
-            'verify_biometrics_js',
-            'common_biometrics_js',
-            'register_biometrics_js',
-            'app_logout',
-        ];
+        $isOnBiometricRoute =
+            $controller instanceof BiometricController ||
+            $controller instanceof JavascriptController ||
+            $controller instanceof ErrorController;
 
-        if ($currentUser->isBiometric2FAEnabled()
-            && !$biometricVerification
-            && !in_array($request->attributes->get('_route'), $allowedRoutes, true)) {
-            $response = $this->redirectController->redirectAction($request, 'app_biometric_auth');
-            $event->setController(fn() => $response);
+        if ($currentUser->isBiometric2FAEnabled()) {
+            if (!$biometricVerification && !$isOnBiometricRoute) {
+                $response = $this->redirectController->redirectAction($request, 'app_biometric_auth');
+                $event->setController(fn() => $response);
+            }
+
+            if ($biometricVerification && $controller instanceof BiometricController) {
+                $response = $this->redirectController->redirectAction($request, 'app_dashboard');
+                $event->setController(fn() => $response);
+            }
         }
     }
+
 }

@@ -98,7 +98,7 @@ readonly class UserDeviceHelper
         $webAuthn = $this->getWebAuthn();
         $webAuthn->processGet($clientDataJSON, $authenticatorData, $signature, $credentialPublicKey, $challenge);
 
-        $device->setLastUsedAt(new \DateTimeImmutable());
+        $device->setLastUsedAt(new \DateTime());
         $this->entityManager->flush();
     }
 
