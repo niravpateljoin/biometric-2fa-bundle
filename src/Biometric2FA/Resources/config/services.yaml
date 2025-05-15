@@ -20,4 +20,6 @@ services:
     autowire: true
     autoconfigure: true
     public: true
+    bind:
+      $redirectPath: '%biometric_2fa.redirect_path%'
 

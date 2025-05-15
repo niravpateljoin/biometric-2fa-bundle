@@ -18,6 +18,7 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
     public function __construct(
         private TokenStorageInterface $tokenStorage,
         private RedirectController $redirectController,
+        private string $redirectPath,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -71,7 +72,7 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
             }
 
             if ($biometricVerification && $controller instanceof BiometricController) {
-                $response = $this->redirectController->redirectAction($request, 'app_dashboard');
+                $response = $this->redirectController->redirectAction($request, $this->redirectPath);;
                 $event->setController(fn() => $response);
             }
         }

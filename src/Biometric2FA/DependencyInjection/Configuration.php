@@ -15,11 +15,12 @@ class Configuration implements ConfigurationInterface
             ->children()
             ->scalarNode('rp_id')->defaultValue('localhost')->end()
             ->scalarNode('rp_name')->defaultValue('My Application')->end()
-            ->arrayNode('attestation_formats')
             ->scalarPrototype()->end()
             ->defaultValue(['packed', 'fido-u2f'])
             ->end()
             ->scalarNode('device_entity')->isRequired()->cannotBeEmpty()->end()
+            ->scalerNode('redirect_path')->isRequired()->cannotBeEmpty()->end()
+            ->scalerNode('logout_path')->isRequired()->cannotBeEmpty()->end()
             ->end();
 
         return $treeBuilder;

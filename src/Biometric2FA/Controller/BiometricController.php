@@ -23,12 +23,6 @@ class BiometricController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
     ) {}
 
-    #[Route('/settings', name: 'bio_metrics_settings', methods: ['GET'])]
-    public function settings(): Response
-    {
-        return $this->render('@Biometric2FABundle/settings.html.twig');
-    }
-
     #[Route('/create-args', name: 'bio_metrics_create_args', methods: ['POST'])]
     public function createArgs(): JsonResponse
     {
@@ -139,6 +133,8 @@ class BiometricController extends AbstractController
     #[Route('/auth', name: 'app_biometric_auth')]
     public function biometricsAuth(): Response
     {
-        return $this->render('@Biometric2FABundle/biometrics_auth.html.twig');
+        return $this->render('@Biometric2FABundle/biometrics_auth.html.twig',  [
+            'logout_path' => $this->parameterBag->get('biometric_2fa.logout_path'),
+        ]);
     }
 }

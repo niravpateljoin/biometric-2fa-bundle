@@ -17,8 +17,9 @@ class Biometric2FAExtension extends Extension implements PrependExtensionInterfa
 
         $container->setParameter('biometric_2fa.rp_id', $config['rp_id']);
         $container->setParameter('biometric_2fa.rp_name', $config['rp_name']);
-        $container->setParameter('biometric_2fa.attestation_formats', $config['attestation_formats']);
         $container->setParameter('biometric_2fa.device_entity', $config['device_entity']);
+        $container->setParameter('biometric_2fa.redirect_path', $config['redirect_path']);
+        $container->setParameter('biometric_2fa.logout_path', $config['logout_path']);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         if (file_exists(__DIR__ . '/../Resources/config/services.yaml')) {
