@@ -6,6 +6,7 @@ use Biometric2FA\Entity\UserDevice;
 use Biometric2FA\Helper\UserDeviceHelper;
 use Biometric2FA\Repository\UserDeviceRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +22,7 @@ class BiometricController extends AbstractController
         private readonly UserDeviceHelper $helper,
         private readonly UserDeviceRepositoryInterface $repository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ParameterBagInterface $parameterBag,
     ) {}
 
     #[Route('/create-args', name: 'bio_metrics_create_args', methods: ['POST'])]
