@@ -1,176 +1,97 @@
-{% extends 'base.html.twig' %}
-{% block title %}Biometric Settings{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Biometric Settings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block stylesheets %}
     <style>
+        body {
+            background: #f3f4f6;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
         .card {
+            background: white;
             padding: 20px;
             border: 1px solid #ccc;
             max-width: 600px;
             margin: 40px auto;
             border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
+
         .card h4 {
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 16px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
+
         select, button {
-            padding: 8px;
+            padding: 10px;
             width: 100%;
             border: 1px solid #aaa;
             border-radius: 5px;
+            font-size: 16px;
         }
+
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
         .message {
             padding: 10px;
             margin-top: 15px;
             border-radius: 5px;
+            display: none;
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
-{% endblock %}
+</head>
+<body>
 
-{% block body %}
-    <div class="card">
-        <h4>Biometric Authentication</h4>
-        <form id="bio-metrics-auth-form">
-            <div class="form-group">
-                <label for="bio_metrics">Enable Biometric authentication</label>
-                <select name="bio_metrics" id="bio_metrics">
-                    <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
-                    <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
-                </select>
-                <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
-            </div>
-            <button type="submit">Save</button>
-            <div id="statusMessage" class="message" style="display:none;"></div>
-        </form>
-    </div>
+<div class="card">
+    <form id="bio-metrics-auth-form">
+        <div class="form-group">
+            <label for="bio_metrics">Enable Biometric authentication</label>
+            <select name="bio_metrics" id="bio_metrics">
+                <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
+                <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
+            </select>
+            <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
+        </div>
+        <button type="submit">Save</button>
+        <div id="statusMessage" class="message"></div>
+    </form>
+</div>
 
-    <script>
-        function recursiveBase64StrToArrayBuffer(obj)
-        {
-            console.log('called')
-            const prefix = "=?BINARY?B?";
-            const suffix = "?=";
-
-            if (typeof obj === "string" && obj.startsWith(prefix) && obj.endsWith(suffix)) {
-                // Extract Base64 string
-                let base64Str = obj.slice(prefix.length, -suffix.length);
-
-                // Decode Base64 into binary string
-                let binaryString = atob(base64Str);
-
-                // Convert binary string into ArrayBuffer
-                let bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                return bytes.buffer; // Return as ArrayBuffer
-            }
-
-            if (Array.isArray(obj)) {
-                return obj.map(item => recursiveBase64StrToArrayBuffer(item)); // Process arrays recursively
-            }
-
-            if (obj !== null && typeof obj === "object") {
-                let newObj = {}; // Create a new object to avoid mutation issues
-                Object.entries(obj).forEach(([key, value]) => {
-                    newObj[key] = recursiveBase64StrToArrayBuffer(value);
-                });
-                return newObj;
-            }
-
-            return obj;
-        }
-
-
-        /**
-         * Convert a ArrayBuffer to Base64
-         * @param {ArrayBuffer} buffer
-         * @returns {String}
-         */
-        function arrayBufferToBase64(buffer)
-        {
-            console.log('called')
-            return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
-        }
-
-
-        document.getElementById('bio-metrics-auth-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            if (formData.get('bio_metrics') === '1') {
-                if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {
-                    window.alert('Browser not supported.');
-                    return;
-                }
-                let biometricsDataCreateArgsURL = "{{ path('bio_metrics_create_args') }}";
-                fetch(biometricsDataCreateArgsURL, {
-                    method: 'POST',
-                    cache: 'no-cache'
-                }).then((response) => {
-                    return response.json();
-                }).then((res) => {
-                    if (!res.success) {
-                        throw new Error(res);
-                    }
-                    let createdArgs = res.createdArgs;
-                    return recursiveBase64StrToArrayBuffer(createdArgs);
-                }).then((createCredentialArgs) => {
-                    return navigator.credentials.create(createCredentialArgs);
-                }).then((cred) => {
-                    return {
-                        clientDataJSON: cred.response.clientDataJSON  ? arrayBufferToBase64(cred.response.clientDataJSON) : null,
-                        attestationObject: cred.response.attestationObject ? arrayBufferToBase64(cred.response.attestationObject) : null
-                    };
-                }).then(JSON.stringify).then(function(AuthenticatorAttestationResponse) {
-                    let biometricsDataProcessCreateURL = "{{ path('bio_metrics_process_create') }}";
-                    fetch(biometricsDataProcessCreateURL, {
-                        method: 'POST',
-                        body: AuthenticatorAttestationResponse,
-                        cache: 'no-cache'
-                    }).then((res) => {
-                        return res.json();
-                    }).then((response) => {
-                        if (response.success) {
-                            manageBioMetrics(formData);
-                        }
-                    });
-                })
-            } else {
-                manageBioMetrics(formData);
-            }
-        });
-
-        function manageBioMetrics(formData)
-        {
-            fetch('{{ path('settings_manage_bio_metrics') }}', {
-                method: 'POST',
-                body: formData
-            }).then((res) => {
-                return res.json();
-            }).then(response => {
-                if (response.status) {
-                    showMessage('sucess', 'Updated Authentication Settings')
-                } else {
-                    showMessage('danger', response.errorMessage)
-                }
-            });
-        }
-
-
-        function showMessage(type, text) {
-            const msg = document.getElementById('statusMessage');
-            msg.className = 'message ' + type;
-            msg.textContent = text;
-            msg.style.display = 'block';
-        }
-    </script>
-{% endblock %}
+<script src="{{ path('common_biometrics_js') }}"></script>
+<script src="{{ path('register_biometrics_js') }}"></script>
+</body>
+</html>
