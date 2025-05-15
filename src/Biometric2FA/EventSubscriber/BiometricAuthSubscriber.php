@@ -21,7 +21,7 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
     {
         return [
             LoginSuccessEvent::class => ['onLoginSuccess', 4],
-            KernelEvents::CONTROLLER => ['onKernelController', 4],
+            KernelEvents::CONTROLLER => ['onControllerEvent', 4],
         ];
     }
 

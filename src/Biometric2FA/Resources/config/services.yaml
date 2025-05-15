@@ -14,3 +14,10 @@ services:
     autoconfigure: true
     public: true
     tags: [ 'controller.service_arguments' ]
+
+  Biometric2FA\EventSubscriber\BiometricAuthSubscriber:
+    tags: [ 'kernel.event_subscriber' ]
+    autowire: true
+    autoconfigure: true
+    public: true
+
