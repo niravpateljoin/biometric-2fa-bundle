@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('fingerprint-auth').addEventListener('click', function () {
+    document.querySelector('[data-biometric-auth]').addEventListener('click', function () {
         if (!window.fetch || !navigator.credentials || !navigator.credentials.get) {
             window.alert('Browser not supported.');
             return;

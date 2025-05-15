@@ -47,8 +47,10 @@ class BiometricSettingsController extends AbstractController
                 $this->entityManager->persist($user);
                 $this->entityManager->flush();
                 $status = true;
+                $this->addFlash('success', 'Biometric authentication settings updated successfully.');
             } catch (\Throwable $e) {
                 $errorMessage = 'Failed to manage two factor auth, ' . $e->getMessage();
+                $this->addFlash('danger', $errorMessage);
             }
         }
 

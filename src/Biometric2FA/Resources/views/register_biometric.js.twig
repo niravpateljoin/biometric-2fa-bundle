@@ -1,4 +1,4 @@
-document.getElementById('bio-metrics-auth-form').addEventListener('submit', (e) => {
+document.querySelector('[data-biometric-settings-form]').addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     if (formData.get('bio_metrics') === '1') {
@@ -52,18 +52,6 @@ function manageBioMetrics(formData)
     }).then((res) => {
         return res.json();
     }).then(response => {
-        if (response.status) {
-            showMessage('sucess', 'Updated Authentication Settings')
-        } else {
-            showMessage('danger', response.errorMessage)
-        }
+        window.location.reload()
     });
-}
-
-
-function showMessage(type, text) {
-    const msg = document.getElementById('statusMessage');
-    msg.className = 'message ' + type;
-    msg.textContent = text;
-    msg.style.display = 'block';
 }

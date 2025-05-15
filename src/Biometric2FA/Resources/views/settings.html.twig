@@ -1,98 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Biometric Settings</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends '@Biometric2FA/layout.html.twig' %}
 
-    <style>
-        body {
-            background: #f3f4f6;
-            font-family: sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+{% block title %}Biometric Settings{% endblock %}
 
-        .card {
-            background: white;
-            padding: 20px;
-            border: 1px solid #ccc;
-            max-width: 600px;
-            margin: 40px auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
+{% block biometric_auth_content %}
+    <div class="card">
+        <form data-biometric-settings-form>
+            <div class="form-group">
+                <label for="bio_metrics">Enable Biometric authentication</label>
+                <select name="bio_metrics" id="bio_metrics">
+                    <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
+                    <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
+                </select>
+                <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
+            </div>
+            <button type="submit">Save</button>
+            <a href="{{ path(logout_path) }}" class="btn btn-link mt-3 text-danger">Logout</a>
+        </form>
+    </div>
+{% endblock %}
 
-        .card h4 {
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        select, button {
-            padding: 10px;
-            width: 100%;
-            border: 1px solid #aaa;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .message {
-            padding: 10px;
-            margin-top: 15px;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
-</head>
-<body>
-
-<div class="card">
-    <form id="bio-metrics-auth-form">
-        <div class="form-group">
-            <label for="bio_metrics">Enable Biometric authentication</label>
-            <select name="bio_metrics" id="bio_metrics">
-                <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
-                <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
-            </select>
-            <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
-        </div>
-        <button type="submit">Save</button>
-        <div id="statusMessage" class="message"></div>
-        <a href="{{ path(logout_path) }}">Logout</a>
-    </form>
-</div>
-
-<script src="{{ path('common_biometrics_js') }}"></script>
-<script src="{{ path('register_biometrics_js') }}"></script>
-</body>
-</html>
+{% block biometric_auth_scripts %}
+    <script src="{{ path('common_biometrics_js') }}"></script>
+    <script src="{{ path('register_biometrics_js') }}"></script>
+{% endblock %}
