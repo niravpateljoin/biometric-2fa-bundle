@@ -58,6 +58,9 @@ readonly class BiometricAuthSubscriber implements EventSubscriberInterface
             'bio_metrics_get_args',
             'bio_metrics_create_args',
             'bio_metrics_process_create',
+            'verify_biometrics_js',
+            'common_biometrics_js',
+            'register_biometrics_js',
             'app_logout',
         ];
 
