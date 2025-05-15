@@ -24,7 +24,7 @@ class BiometricSettingsController extends AbstractController
     #[Route('/settings', name: 'bio_metrics_settings', methods: ['GET'])]
     public function settings(): Response
     {
-        return $this->render('@Biometric2FABundle/settings.html.twig', [
+        return $this->render('@Biometric2FABundle/setting/settings.html.twig', [
             'logout_path' => $this->parameterBag->get('biometric_2fa.logout_path'),
         ]);
     }

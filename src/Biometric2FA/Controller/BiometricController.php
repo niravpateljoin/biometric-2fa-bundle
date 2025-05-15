@@ -137,7 +137,7 @@ class BiometricController extends AbstractController
     #[Route('/auth', name: 'app_biometric_auth')]
     public function biometricsAuth(): Response
     {
-        return $this->render('@Biometric2FABundle/biometrics_auth.html.twig',  [
+        return $this->render('@Biometric2FABundle/security/biometrics_auth.html.twig',  [
             'logout_path' => $this->parameterBag->get('biometric_2fa.logout_path'),
         ]);
     }

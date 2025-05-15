@@ -16,7 +16,7 @@ class JavascriptController extends AbstractController
     #[Route('/verify-biometrics-js', name: 'verify_biometrics_js', methods: ['GET'])]
     public function verifyBiometricJS(): Response
     {
-        $response = $this->render('@Biometric2FABundle/biometric_auth.js.twig');
+        $response = $this->render('@Biometric2FABundle/security/biometric_auth.js.twig');
 
         $response->headers->set('Content-Type', 'text/javascript');
 
@@ -46,7 +46,7 @@ class JavascriptController extends AbstractController
     #[Route('/register-biometric-js', name: 'register_biometrics_js', methods: ['GET'])]
     public function registerBiometricJS(): Response
     {
-        $response = $this->render('@Biometric2FABundle/register_biometric.js.twig');
+        $response = $this->render('@Biometric2FABundle/setting/register_biometric.js.twig');
 
         $response->headers->set('Content-Type', 'text/javascript');
 
