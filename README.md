@@ -174,3 +174,15 @@ Register your fingerprint and enable biometric login from the settings page.
 ## 📄 License
 
 This bundle is released under the MIT License.
+
+## 🔐 Biometric Authentication Flow
+
+![Biometric Auth](docs/biometric-auth.png)
+This screen prompts the user to authenticate using a biometric method such as fingerprint or Face ID.
+It appears automatically when biometric 2FA is required after login.
+
+## ⚙️ Settings Page
+
+![Settings](docs/settings-page.png)
+This page allows users to enable or disable biometric authentication for their account.
+Changes are saved securely and reflected immediately in the login flow.
