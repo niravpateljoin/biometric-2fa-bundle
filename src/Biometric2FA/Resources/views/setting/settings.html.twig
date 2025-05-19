@@ -1,0 +1,25 @@
+{% extends '@Biometric2FA/layout.html.twig' %}
+
+{% block title %}Biometric Settings{% endblock %}
+
+{% block biometric_auth_content %}
+    <div class="card">
+        <form data-biometric-settings-form>
+            <div class="form-group">
+                <label for="bio_metrics">Enable Biometric authentication</label>
+                <select name="bio_metrics" id="bio_metrics">
+                    <option value="0" {% if not app.user.isBiometric2FAEnabled %}selected{% endif %}>No</option>
+                    <option value="1" {% if app.user.isBiometric2FAEnabled %}selected{% endif %}>Yes</option>
+                </select>
+                <input type="hidden" name="_token" value="{{ csrf_token('bio_metrics_auth') }}">
+            </div>
+            <button type="submit">Save</button>
+            <a href="{{ path(logout_path) }}" class="btn btn-link mt-3 text-danger">Logout</a>
+        </form>
+    </div>
+{% endblock %}
+
+{% block biometric_auth_scripts %}
+    <script src="{{ path('common_biometrics_js') }}"></script>
+    <script src="{{ path('register_biometrics_js') }}"></script>
+{% endblock %}

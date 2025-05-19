@@ -1,0 +1,30 @@
+{% extends '@Biometric2FA/layout.html.twig' %}
+
+{% block title %}Biometric Authentication{% endblock %}
+
+{% block biometric_auth_content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow rounded text-center">
+                    <div class="card-body">
+                        <h5 class="mb-4">Biometric Authentication</h5>
+
+                        <button data-biometric-auth class="btn btn-outline-primary rounded-circle p-2 border-2 w-25" style="font-size: 3rem;">
+                            <i class="fa fa-fingerprint"></i>
+                        </button>
+
+                        <p class="mt-4 mb-0 text-muted">Click fingerprint to authenticate</p>
+
+                        <a href="{{ path(logout_path) }}" class="btn btn-link mt-3 text-danger">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block biometric_auth_scripts %}
+    <script src="{{ path('common_biometrics_js') }}"></script>
+    <script src="{{ path('verify_biometrics_js') }}"></script>
+{% endblock %}

@@ -1,0 +1,5 @@
+biometric_2fa:
+  rp_id: "yourdomain.com"
+  rp_name: "My App Name"
+  redirect_path: 'app_dashboard'
+  logout_path: 'app_logout'

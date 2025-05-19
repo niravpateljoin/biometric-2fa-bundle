@@ -1,0 +1,23 @@
+{
+  "name": "patel/biometric-2fa-bundle",
+  "description": "Symfony bundle for biometric 2FA using WebAuthn",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Biometric2FA\\": "src/Biometric2FA"
+    }
+  },
+  "require": {
+    "php": "^8.3",
+    "symfony/framework-bundle": "^6.3 || ^7.0",
+    "lbuchs/webauthn": "^2.1",
+    "doctrine/dbal": "^4.2"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0.x-dev"
+    }
+  }
+}
+

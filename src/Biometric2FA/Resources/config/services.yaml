@@ -1,0 +1,25 @@
+services:
+  Biometric2FA\Helper\UserDeviceHelper:
+    autowire: true
+    autoconfigure: true
+    public: true
+    bind:
+      $rpName: '%biometric_2fa.rp_name%'
+      $rpId: '%biometric_2fa.rp_id%'
+      $deviceEntityClass: '%biometric_2fa.device_entity%'
+
+  Biometric2FA\Controller\:
+    resource: '../../Controller/'
+    autowire: true
+    autoconfigure: true
+    public: true
+    tags: [ 'controller.service_arguments' ]
+
+  Biometric2FA\EventSubscriber\BiometricAuthSubscriber:
+    tags: [ 'kernel.event_subscriber' ]
+    autowire: true
+    autoconfigure: true
+    public: true
+    bind:
+      $redirectPath: '%biometric_2fa.redirect_path%'
+

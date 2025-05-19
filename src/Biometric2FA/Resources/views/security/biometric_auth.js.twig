@@ -1,0 +1,42 @@
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector('[data-biometric-auth]').addEventListener('click', function () {
+        if (!window.fetch || !navigator.credentials || !navigator.credentials.get) {
+            window.alert('Browser not supported.');
+            return;
+        }
+        let biometricDataGetArgsURL = "{{ path('bio_metrics_get_args') }}";
+        let processBiometricDataCheck = "{{ path('bio_metrics_verify') }}";
+        fetch(biometricDataGetArgsURL, { method: 'POST', cache: 'no-cache' })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.success) {
+                    throw new Error('WebAuthn arguments retrieval failed');
+                }
+                return recursiveBase64StrToArrayBuffer(data.getArgs);
+            })
+            .then((getCredentialArgs) => navigator.credentials.get(getCredentialArgs))
+            .then((cred) => {
+                return {
+                    id: cred.rawId ? arrayBufferToBase64(cred.rawId) : null,
+                    clientDataJSON: cred.response.clientDataJSON ? arrayBufferToBase64(cred.response.clientDataJSON) : null,
+                    authenticatorData: cred.response.authenticatorData ? arrayBufferToBase64(cred.response.authenticatorData) : null,
+                    signature: cred.response.signature ? arrayBufferToBase64(cred.response.signature) : null,
+                };
+            })
+            .then((authResponse) => {
+                fetch(processBiometricDataCheck, {
+                    method: 'POST',
+                    body: JSON.stringify(authResponse),
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    if (data.status === 'ok') {
+                        window.location.reload();
+                    } else {
+                        window.alert('Biometric authentication failed');
+                    }
+                });
+            });
+    });
+});

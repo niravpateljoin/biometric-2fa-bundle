@@ -1,0 +1,4 @@
+biometric_2fa_bundle:
+  resource: ../../Controller/
+  type: attribute
+  prefix: /biometric

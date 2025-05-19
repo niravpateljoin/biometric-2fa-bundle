@@ -1,0 +1,57 @@
+document.querySelector('[data-biometric-settings-form]').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    if (formData.get('bio_metrics') === '1') {
+        if (!window.fetch || !navigator.credentials || !navigator.credentials.create) {
+            window.alert('Browser not supported.');
+            return;
+        }
+        let biometricsDataCreateArgsURL = "{{ path('bio_metrics_create_args') }}";
+        fetch(biometricsDataCreateArgsURL, {
+            method: 'POST',
+            cache: 'no-cache'
+        }).then((response) => {
+            return response.json();
+        }).then((res) => {
+            if (!res.success) {
+                throw new Error(res);
+            }
+            let createdArgs = res.createdArgs;
+            return recursiveBase64StrToArrayBuffer(createdArgs);
+        }).then((createCredentialArgs) => {
+            return navigator.credentials.create(createCredentialArgs);
+        }).then((cred) => {
+            return {
+                clientDataJSON: cred.response.clientDataJSON  ? arrayBufferToBase64(cred.response.clientDataJSON) : null,
+                attestationObject: cred.response.attestationObject ? arrayBufferToBase64(cred.response.attestationObject) : null
+            };
+        }).then(JSON.stringify).then(function(AuthenticatorAttestationResponse) {
+            let biometricsDataProcessCreateURL = "{{ path('bio_metrics_process_create') }}";
+            fetch(biometricsDataProcessCreateURL, {
+                method: 'POST',
+                body: AuthenticatorAttestationResponse,
+                cache: 'no-cache'
+            }).then((res) => {
+                return res.json();
+            }).then((response) => {
+                if (response.success) {
+                    manageBioMetrics(formData);
+                }
+            });
+        })
+    } else {
+        manageBioMetrics(formData);
+    }
+});
+
+function manageBioMetrics(formData)
+{
+    fetch('{{ path('settings_manage_bio_metrics') }}', {
+        method: 'POST',
+        body: formData
+    }).then((res) => {
+        return res.json();
+    }).then(response => {
+        window.location.reload()
+    });
+}
